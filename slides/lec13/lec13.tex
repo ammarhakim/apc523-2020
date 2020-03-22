@@ -31,8 +31,8 @@
 \newcommand{\bQ}[1]{{Q#1}}
 
 % Uncomment appropriate command to disable/enable hiding
-%\newcommand{\mypause}{\pause}
-\newcommand{\mypause}{}
+\newcommand{\mypause}{\pause}
+%\newcommand{\mypause}{}
 
 \DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
 
@@ -76,11 +76,12 @@
   \titlepage
 \end{frame}
 
+%----------------------------------------------------------------
 \begin{frame}{Goal: Hardware and software for Computational Physics}
   Our computation physics codes must run somewhere: Making code work
-  on modern hardware and writing \emph{long-lived} and \emph{usuable}
+  on modern hardware and writing \emph{long-lived} and \emph{usable}
   software is highly non-trivial task. {\bf Difficult
-    and underappreciated art!}
+    and under appreciated art!}
   \mypause%
   \begin{itemize}
   \item Modern computer hardware is changing: new architectures are
@@ -106,7 +107,9 @@
     \end{itemize}
   \end{itemize}
 \end{frame}
+%----------------------------------------------------------------
 
+%----------------------------------------------------------------
 \begin{frame}{Some History: Charles Babbage, (1791-1871)}
   \begin{columns}
     
@@ -122,18 +125,20 @@
         Science Museum, London in 1991 (printer he designed
         constructed in 2000)
         \mypause%
-      \item Accomplishment of greatest genuis was the invention of the
+      \item Accomplishment of greatest genius was the invention of the
         ``Analytical Engine''. General purpose computer, with all
         essential ideas now found in modern computer hardware worked
         out in detail.
       \end{itemize}
       See links on lecture website. See also cyberpunk novel ``The
-      Difference Engine''. Explores distopian alternate history in
+      Difference Engine''. Explores dystopian alternate history in
       which Analytical Engine built.
     \end{column}
   \end{columns}
 \end{frame}
+%----------------------------------------------------------------
 
+%----------------------------------------------------------------
 \begin{frame}{Some History: John von Neumann, (1903-1957)}
   \begin{columns}
     
@@ -159,7 +164,9 @@
     \end{column}
   \end{columns}
 \end{frame}
+%----------------------------------------------------------------
 
+%----------------------------------------------------------------
 \begin{frame}{Many others, some with Princeton background}
   The history of computing is complex and many people have played key
   role, many with Princeton background (like von Neumann who was at
@@ -181,6 +188,290 @@
     library named after Marquand).
   \end{itemize}
 \end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{A note on computer speeds and prefixes}
+  Just a reminder
+  \begin{itemize}
+  \item Giga = billion ($10^9$)
+  \item Tera = trillion ($10^{12}$)
+  \item Peta = $10^{15}$
+  \item Exa = $10^{18}$ (billion times faster that Gigascale)
+  \end{itemize}
+  Typical processors are in the GHz range. (My MacBook Pro clocks at
+  2.8 GHz and has 4 cores). Typical laptop drives are in terabyte
+  range. Largest current machines provide 10s of Petaflops computing
+  powers with new exascale machines available in a 2-5 years.
+\end{frame}
+% ----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{What drives single processor performance?}
+  Moore's ``Law'' (more of an industry observation) ``The number of
+  transistors incorporated in a chip with approximately double every
+  24 months''%
+  \footnotesize%
+  \begin{columns}
+    \begin{column}{0.55\textwidth}
+      \begin{figure}
+        \incfig{Moores_Law_Transistor_Count_1971-2018.png}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{itemize}\cramplist
+      \item Ultimately, it boils down to the smallest feature sizes
+        that can be lithographed. At one point, people thought it
+        would bottom out at $28$~nm. However many companies have
+        $10$~nm and $7$~nm in mass production, with $5$~nm around the
+        corner.
+      \item \emph{Eventually, individual processors are not going to
+          get much faster}. It is hard to shrink semiconductor feature
+        sizes any futher. Fundamental limits from physics (speed of
+        light, EM cross-talk, heat generation, ...
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+% ----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{At present, processor hardware architecture is in
+    significant flux}
+  \footnotesize%
+  \begin{itemize}
+  \item There is a trend away from faster, complex, chips to chips
+    with simpler, less fast ``cores'' (many-core machines)
+  \item Power consumption is a huge issue with major supercomputer
+    installations. If we go along the path we are on now, a small
+    power-plant will be required to simply run the cooling systems of
+    large machines.
+  \item With the rise of handheld devices (smartphones, tablets, ...)
+    there is a drive towards low-cost and low-power chips. Significant
+    work in ARM chips is going on. (These are Reduced Instruction Set
+    Computer (RISC) chips, designed to be cheap and low power)
+  \item Use of Graphics Processing Units (GPUs) in HPC is also
+    increasing.
+  \item It is incredibly hard for software to keep up with
+    hardware. Software is written by humans, who need to eat, sleep,
+    take vacation, etc. Also, software is \emph{extremely
+      complicated}, more so than the hardware it runs on.
+  \end{itemize}
+  {\color{blue} A major applied mathematics, computational physics and
+    software engineering challenge is to design algorithms which take
+    advantage of this complicated zoo of emerging hardware.}
+
+\end{frame}
+% ----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Two major types of parallel programming}
+
+  To remain abstract, I will use ``Processing Unit'' (PU) as a
+  short-hand. It could mean independent CPUs, threads or cores.
+  \begin{itemize}
+  \item In \emph{Shared memory} parallel programming, different PUs
+    may run different code, but have access to the same
+    \emph{memory}. Synchronization of read/writes is a major
+    issue.
+  \item Shared memory systems usually use ``threads''. These are
+    separate code execution paths. A CPU runs a thread for a bit, stops
+    it, and then runs another thread. Complex programs can have
+    hundreds of threads. %
+    \mypause%
+  \item In the second type, \emph{distributed memory}, each PU
+    executes the same code, but on their own portions of the
+    data. Communication is done via \emph{messages}. This is the most
+    common pattern in code which solves PDEs (either via grid or PIC
+    methods).
+  \end{itemize}  
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{How much can parallel algorithms help? Amdahl's Law}
+
+  Amdahl wrote an important paper in 1967 (``Validity of the single
+  processor approach to achieving large scale computing
+  capabilities''). Basically, he advocates using \emph{serial}
+  processing. Paper starts out: {\color{blue} ``For over a decade
+    prophets have voiced the contention that the organization of a
+    single computer has reached its limits and that truly significant
+    advances can be made only by interconnection of a multiplicity of
+    computers in such a manner as to permit cooperative
+    solution. .... Demonstration is made of the continued validity of
+    the single processor approach and of the weaknesses of the
+    multiple processor approach in terms of application to real
+    problems and their attendant irregularities''}%
+  \vskip0.1in%
+  This paper has the statement to what is now known as ``Amdahl's
+  Law''. It is a very good (and quick) read.%
+  \vskip0.1in%
+  \mypause%
+  Incidentally: Amdahl never actually writes any equations in his
+  paper, but states it in words! (Perhaps he didn't know how to
+  typeset equations?)
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Amdahl's Law shows the limitation of parallel
+    programming with \emph{constant work loads}}
+
+  Let a process take unit time to run. Then, ideally, with $p$ PUs,
+  the run time should be $1/p$. Amdahl points out that in reality,
+  only a fraction $f$ can sped up, the remaining $1-f$ is
+  ``irreducibly'' serial. Hence, the run-time is
+  \begin{align*}
+    T_a(p,f) = f/p + (1-f)
+  \end{align*}
+  Hence, \emph{speedup} will be
+  \begin{align*}
+    S_a(p,f) = \frac{1}{f/p + (1-f)}
+  \end{align*}
+  Note that if $f<1$, then
+  \begin{align*}
+    S_a(\infty,f) = \frac{1}{1-f}
+  \end{align*}
+  which is independent of number of PUs!
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Amdahl's Law for various parallelizable fractions}
+  \begin{figure}
+    \setkeys{Gin}{width=0.6\linewidth,keepaspectratio}
+    \incfig{amdahls-law.pdf}
+    \caption{Amdahl's Law shows that the speedup of a parallel program
+      will quickly saturate if there is any fraction of the work which
+      is irreducibly serial.}
+  \end{figure}
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Some comments on Amdahl's Law}
+  \begin{itemize}
+  \item Amdahl's law is \emph{optimistic} in the sense that it assumes
+    that the parallelizable fraction speedup scales linearly. Things
+    get worse with (inevitable) overhead say from messaging, etc.%
+    \mypause%
+  \item Amdahl's law is \emph{pessimistic} in that it assumes that
+    \emph{we want faster results for the same problem}. This is not
+    true for most problems of interest.
+  \end{itemize}
+  \mypause%
+  In reality, if someone gives us a bigger computer, we want to do a
+  \emph{bigger problem}. This is crucial to getting around the
+  limitations of Amdahl's Law.%
+  \vskip0.1in%
+  Assume that if $f$ is the parallelizable fraction of a serial job,
+  then with $p$ PUs we will run a $p$ times bigger job. Then, the
+  speedup will be
+  \begin{align*}
+    S_g(p,f) = (1-f) + fp
+  \end{align*}
+  Note that now, the speedup is linear in $p$! Essentially, the cost
+  of the serial part is amortized by going to a bigger problem. This
+  is called \emph{Gustafson's Law}.
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{These two speedup laws distinguish \emph{strong} and
+    \emph{weak} scaling}
+
+  The \emph{strong scaling} of a problem is the actual speedup one can
+  achieve for a problem of fixed size, but increasing PUs. Amdahl's
+  law bounds such a scaling. (In general, actual strong-scaling will
+  be \emph{worse} than predicted by Amdahl's Law)%
+  \mypause%
+  \vskip0.1in%
+  The \emph{weak scaling} of a problem is the actual speedup one can
+  achieve for by problem with size increasing linearly with number of
+  PUs. Gustafson's law bounds such a scaling. (In general, actual
+  weak-scaling will be \emph{worse} than predicted by Gustafson's
+  Law)%
+  \mypause%
+  \vskip0.1in%
+  In general, most real-life problems will scale in a more complicated
+  manner. For example, for some problems are I/O and/or communication
+  bound. Others are bound by codes which are not parallel at all (for
+  example, some old legacy serial code might be needed).
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{The Corollary of Modest Potential}
+  This term was coined in an important paper ``Type Architectures,
+  Shared Memory, and the Corollary of Modest Potential'' by L. Snyder
+  in 1986. (Ann. Rev. Comput. Sci. 1986. 1:289-317).%
+  \vskip0.1in%
+  Consider a time-dependent 3D problem on a rectangular grid, with $n$
+  number of cells in each direction. Then, assuming that the number of
+  time-steps to get to a given time is proportional to $n$, the
+  computational time will scale as
+  \begin{align*}
+    T_m(n) \sim n^4
+  \end{align*}
+  (There are $n^3$ cells, and $n$ steps to take). Hence, even if we
+  get linear scaling from Gustafson's law, the scaling of $n$ with
+  number of PUs, $p$, will be sub-linear. In this particular case,
+  \begin{align*}
+    n \sim p^{1/4}
+  \end{align*}
+  {\color{blue} Hence, to do a problem 100 times bigger, we will need
+    $10^8$ more computing resources!}%
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Can be \emph{worse} than predicted by The
+    Corollary of Modest Potential}
+  Note that most algorithms are not \emph{parallel in time}! This
+  means, that for a 3D problem, we can only use $\sim n^3$ more PUs,
+  and need to run for a factor of $n$ longer.
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{What do all of these (seemingly pessimistic) scaling
+    laws teach us?}
+  This \emph{does not} mean that things are hopeless! In fact, what
+  this means is that parallel algorithms must go hand-in-hand with
+  better physics models, which do not require such high
+  resolutions. For example, 
+  \begin{itemize}
+  \item Instead of solving Navier-Stokes (NS) equations, one solves
+    Reynolds Averaged NS (RANS) equations, or uses Large Eddy
+    Simulation (LES) techniques%
+    \mypause%
+  \item Or, instead of tracking very particle in a large system, one
+    performs statistical averaging and uses expensive particle/kinetic
+    calculations to provide occasional validation
+    \mypause%
+  \item Or, instead of doing Vlasov-Maxwell (6D, with plasma frequency
+    time-scales), one uses (in appropriate limits) gyrokinetic
+    equations (5D, with turbulent fluctuation time-scales), or fluid
+    or other appropriate approximations.
+  \end{itemize}%
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Conclusion: Ammar's Corollary of Cynical Progress}
+
+  {\color{blue} It is easy to fill up the biggest computer with FLOPs
+    and bytes. It is \emph{much} harder to do useful science.}%
+  \vskip0.1in%
+  Another way to put it: in a Darwinian process with pressure to use
+  bigger-and-bigger machines, one may select for less-than-desired
+  traits.
+\end{frame}
+%----------------------------------------------------------------
 
 \end{document}
 
