@@ -1,0 +1,84 @@
+\documentclass[aspectratio=169]{beamer}
+%\documentclass[aspectratio=43]{beamer}
+
+\usepackage{graphicx}  % Required for including images
+\usepackage{natbib}
+\usepackage{booktabs} % Top and bottom rules for tables
+\usepackage{amssymb,amsthm,amsmath}
+\usepackage{exscale}
+\usepackage{natbib}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{bm}
+% Setup TikZ
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\tikzstyle{block}=[draw opacity=0.7,line width=1.4cm]
+% Setup hyperref
+\usepackage{hyperref}
+\hypersetup{colorlinks=true}
+\hypersetup{citecolor=porange}
+\hypersetup{urlcolor=porange!80!}
+\hypersetup{linkcolor=porange}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{principle}{Principle}
+
+%% Writing quarters
+\newcommand{\wQ}[1]{{\textcolor{white}{Q#1}}}
+\newcommand{\bQ}[1]{{Q#1}}
+
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+%% Autoscaled figures
+\newcommand{\incfig}{\centering\includegraphics}
+\setkeys{Gin}{width=0.9\linewidth,keepaspectratio}
+
+%Make the items smaller
+\newcommand{\cramplist}{
+	\setlength{\itemsep}{0in}
+	\setlength{\partopsep}{0in}
+	\setlength{\topsep}{0in}}
+\newcommand{\cramp}{\setlength{\parskip}{.5\parskip}}
+\newcommand{\zapspace}{\topsep=0pt\partopsep=0pt\itemsep=0pt\parskip=0pt}
+
+\newcommand{\backupbegin}{
+   \newcounter{finalframe}
+   \setcounter{finalframe}{\value{framenumber}}
+}
+\newcommand{\backupend}{
+   \setcounter{framenumber}{\value{finalframe}}
+}
+
+\usetheme[bullet=circle,% Use circles instead of squares for bullets.
+          titleline=true,% Show a line below the frame title.
+          ]{Princeton}
+
+\title[{\tt }] {Lecture 13: Software and Hardware Issues in Computational Physics}%
+\author[http://cmpp.rtfd.io]%
+{Ammar H. Hakim ({\tt ahakim@pppl.gov}) \inst{1}}%
+
+\institute[PPPL]
+{ \inst{1} Princeton Plasma Physics Laboratory, Princeton, NJ %
+}
+
+\date[3/23/2020]{Princeton University, Course APC523, 2020}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{}
+\end{frame}
+
+\end{document}
+
+
+\begin{frame}{}
+\end{frame}
+
+% ----------------------------------------------------------------
