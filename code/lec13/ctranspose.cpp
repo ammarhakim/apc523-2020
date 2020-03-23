@@ -18,9 +18,10 @@ void matmat(const Matrix& A, const Matrix& B, Matrix& C) {
   
   for (auto i=0; i<N; ++i)
     for (auto j=0; j<N; ++j) {
-      C(i,j) = 0.0;
+      double cij = 0.0;
       for (auto k=0; k<N; ++k)
-        C(i,j) += A(i,k)*T(j,k);
+        cij += A(i,k)*T(j,k);
+      C(i,j) = cij;
     }
 }
 

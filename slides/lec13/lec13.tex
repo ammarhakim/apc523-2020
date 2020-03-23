@@ -228,7 +228,7 @@
         corner.
       \item \emph{Eventually, individual processors are not going to
           get much faster}. It is hard to shrink semiconductor feature
-        sizes any futher. Fundamental limits from physics (speed of
+        sizes any further. Fundamental limits from physics (speed of
         light, EM cross-talk, heat generation, ...
       \end{itemize}
     \end{column}
@@ -517,14 +517,14 @@
   \begin{itemize}
   \item Designing \emph{efficient} linear algebra routines is not
     trivial, even for such ``simple'' matrix-matrix multiply problems.
-  \item Most widely used libaries are BLAS (Basic Linear Algebra
+  \item Most widely used libraries are BLAS (Basic Linear Algebra
     System) on top of which is built LAPACK (Linear Algebra Package).
   \item BLAS provides ``basic'' routines (matrix-vector, matrix-matrix
     multiplication, etc). LAPACK provides linear solvers, eigensystem
     finders, Singular Value Decomposition (SVD), etc.
   \item Created originally by Jack Dongara in 1970s. Continues to be
     developed and optimized. Many platforms (Apple, Intel, ...) supply
-    their own highly optimized BLAS/LAPACK libaries. Other
+    their own highly optimized BLAS/LAPACK libraries. Other
     ``self-tuning'' implementations also exist (see ATLAS).
   \item Modern libraries using very clever C++ techniques are also
     being created and extensively used. The best example I know of is
@@ -541,7 +541,7 @@
 \begin{frame}{What do Eigen/BLAS know that we don't?}
   
   {\bf Cache usage and use of SIMD\footnote{Single Instruction
-      Multiple Data} instructions}. Modern processors have a hierachy
+      Multiple Data} instructions}. Modern processors have a hierarchy
   of memory locations they can access, with \emph{very} different
   access speeds.%
   \vskip0.1in%
@@ -595,13 +595,14 @@
     matrix-matrix multiply?}
 
   \begin{figure}
-    \setkeys{Gin}{width=0.5\linewidth,keepaspectratio}
-    \incfig{mat-access.pdf}
+    \setkeys{Gin}{width=0.4\linewidth,keepaspectratio}
+    \incfig{Row-Major.png}
+    \incfig{Col-Major.png}
     \caption{In row major order (left) the \emph{rows} are kept
-      contigously. To be cache friendly one must increment the row
-      index ($i$) faster. In column major order (left) the
-      \emph{columns} are kept contigously. To be cache friendly one
-      must increment the columns $j$ index faster. \myb{For
+      contiguously. To be cache friendly one must increment the column
+      index ($j$) faster. In column major order (right) the
+      \emph{columns} are kept contiguously. To be cache friendly one
+      must increment the columns $i$ index faster. \myb{For
         matrix-matrix multiply this is impossible, as one or either
         indexing will incur a cache miss!}}
   \end{figure}
@@ -641,8 +642,8 @@
       \begin{align*}
         C_{ij} = \sum_k A_{ik} T_{jk}
       \end{align*}
-      Now, note that if the data is stored in \emph{column} major
-      order, both matrices are accessed in a cache friendly manner!%
+      Now, note that if the data is stored in \emph{row} major order,
+      both matrices are accessed in a cache friendly manner!%
       \vskip0.1in%
       This is problem and chip dependent: likely does not matter much
       for ``small'' matrix sizes.
@@ -727,12 +728,38 @@
     \incfig{scalar-vs-simd.jpg}
     \caption{Scalar operations are applied sequentially to one
       register after another (left). SIMD operations apply the same
-      operation (``Single Instruction'') to ``Mutiple Data''
+      operation (``Single Instruction'') to ``Multiple Data''
       locations. For this the CPU provides special registers that can
       store 4 (or more) floating point numbers.}
   \end{figure}  
 
 
+\end{frame}
+% ----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{SIMD and ``Vectorization''}
+  \begin{itemize}
+  \item Modern processors have vector instructions that make it
+    possible to do operations on \emph{all} elements of a vector
+    \emph{simultaneously}.
+  \item Total size of each vector can be 64~bits (MMX), 128~bits
+    (XMM), 256~bits (YMM) and, 512~bits (ZMM).%
+    \mypause%
+  \item Often, we can rearrange code to ensure same floating-point
+    operation is done on multiple data elements at the same time.
+  \item This depends on the instruction sets available on the CPU you
+    have: these instruction sets go by strange names like ``SSE2'',
+    ``AVX'', ``AVX512'' etc.%
+    \mypause%
+  \item However, programming with these instructions sets/registers is
+    not easy! Compilers can often vectorize automatically, but this is
+    best done by a human who understands the algorithm in detail.%
+    \mypause%
+  \item Note: not all algorithms are suitable for vectorization!
+    Luckily, many PDE and particle solvers can be vectorized,
+    resulting in significant gain in speed ($2\times$ to $4\times$).
+  \end{itemize}
 \end{frame}
 %----------------------------------------------------------------
 
@@ -740,8 +767,8 @@
 \begin{frame}{SIMD programming is done via CPU ``intrinsics''}
 
   These are functions which the CPU vendor provides (Intel, AMD, ARM
-  ...). Unfortunately, there is no standardization, and the calls look
-  bizzare and complicated.%
+  ...). Unfortunately, there is no standardization (say between
+  Intel/AMD and ARM), and the calls look bizarre and complicated.%
   \mypause%
   \vskip0.1in%
   The most detailed description on how to optimize C++ code (cache,
@@ -751,7 +778,7 @@
   care about speed.%
   \mypause%
   \vskip0.1in%
-  He has a C++ library that abstracts aways much of the gory details
+  He has a C++ library that abstracts always much of the gory details
   of SIMD programming. See \url{https://github.com/vectorclass}. See
   also NSIMD library \url{https://github.com/agenium-scale/nsimd}.
 
@@ -759,20 +786,56 @@
 %----------------------------------------------------------------
 
 %----------------------------------------------------------------
-\begin{frame}{Cache-awarness and SIMD usage makes Eigen very fast}
+\begin{frame}{Cache-awareness and SIMD usage makes Eigen very fast}
 
-  \begin{figure}
-    \setkeys{Gin}{width=0.7\linewidth,keepaspectratio}
-    \incfig{eigen-bench-axpy.pdf}
-    \caption{Eigen peformance with vector size for a vector-vector
-      addition operation. The sudden drop in performance occurs when
-      the vector is too large to put into cache. For other benchmarks
-      see \url{http://eigen.tuxfamily.org/index.php?title=Benchmark}}
-  \end{figure}  
+  \begin{columns}
+  
+    \begin{column}{0.6\linewidth}
+      \begin{figure}
+        \setkeys{Gin}{width=1.0\linewidth,keepaspectratio}
+        \incfig{matrix_matrix.pdf}
+      \end{figure}
+    \end{column}
+  
+    \begin{column}{0.4\linewidth}
+      Eigen performance with matrix size for a matrix-matrix
+      multiplication. For other benchmarks see
+      \url{http://eigen.tuxfamily.org/index.php?title=Benchmark}
+    \end{column}
+  \end{columns}
 
 \end{frame}
 %----------------------------------------------------------------
 
+%----------------------------------------------------------------
+\begin{frame}{Some final thoughts}
+  \footnotesize%
+  For serious computational work, thought must be given to
+  algorithm and code optimization.%
+  \begin{itemize}
+  \item Hands down, it is more optimal to use a \emph{``better''
+      algorithm} than optimize a crappy one. Example: FFTs will beat
+    naive $N^2$ algorithms for any useful $N$.
+    \mypause%
+  \item However, even good algorithms need major effort in optimizing
+    for daily use in production code. (If you only care about a small
+    ``throw-away'' application then this effort is not worth it). If
+    your code is widely used, then pressure on optimization is higher.%
+    \mypause%
+  \item Remember that not all algorithms will benefit from cache and
+    SIMD vectorization as much as did matrix-matrix
+    multiplication. However, in general it is a {\bf good idea to be
+      aware of memory access patterns in your code}.
+  \item Despite complexity, SIMD vectorization is often needed to make
+    good use of modern processors. {\bf Use libraries!} Hand-written
+    SIMD code is ugly and likely hard to maintain.
+  \end{itemize}
+  \mypause%
+  Next lecture: some guidelines on software engineering, programming
+  languages, parallel programming and perhaps an overview of GPU
+  programming.
+\end{frame}
+%----------------------------------------------------------------
 
 \end{document}
 
