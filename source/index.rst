@@ -120,4 +120,6 @@ painful and very tedious. The processor intrinsics are not intuitive
 and need significant expertise to use. Wrapper C++ libraries should be
 used instead. For example, Agner Fog's `VectorClass
 <https://github.com/vectorclass>`_ library or Agenium Scale's `NSMID
-library <https://github.com/agenium-scale/nsimd>`_.
+library <https://github.com/agenium-scale/nsimd>`_ are good libraries
+to use. (Intel has it's own library but it does not seem to be widely
+used or even maintained. I may be wrong, though).
