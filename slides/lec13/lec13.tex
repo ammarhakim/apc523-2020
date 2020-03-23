@@ -673,7 +673,106 @@
   \end{columns}  
   
 \end{frame}
+% ----------------------------------------------------------------
+
 %----------------------------------------------------------------
+\begin{frame}{Each level of cache has it own access timing and its own
+  latency}
+
+  \begin{figure}
+    \setkeys{Gin}{width=0.75\linewidth,keepaspectratio}
+    \incfig{rel-cost-CPU-cache.pdf}
+    \caption{Table I in Phys. Plasmas {\bf 15}, 055703 (2008)}
+  \end{figure}
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Writing code which is cache friendly is not easy}
+  Very problem \emph{and} machine dependent!
+  \begin{itemize}
+  \item In general, be aware of where the data you want comes
+    from. Modern CPUs ``prefetch'' data, i.e. if you ask for element
+    {\tt a[i]} in an array, very likely the CPU has also fetched
+    element {\tt a[i+1]} into the cache. So, use it!%
+    \mypause%
+  \item In most multi-dimensional structured arrays (say a matrix) at
+    least one index is a ``stride'' away. This can cause a huge cache
+    miss.%
+    \mypause%
+  \item This is partly unavoidable. Some newer codes use ``space
+    filling curves'' to index an array. This ensures that \emph{most}
+    (not all) array accesses are from close-by in memory.%
+    \mypause%
+  \item If you are using particles (PIC codes) you must try and keep
+    all the particles in a cell close by. This may require
+    periodically sorting the particles, as otherwise they will drift
+    arbitrarily far away, killing cache performance.%
+    \mypause%
+  \item \myb{If there is a cache aware library USE IT!!} These types
+    of optimizations are very difficult and time consuming, and are
+    best left to experts.
+  \end{itemize}
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Additional complications come about as modern CPUs allow
+    the same operation to be applied to more than one number}
+  
+  \begin{figure}
+    \setkeys{Gin}{width=0.6\linewidth,keepaspectratio}
+    \incfig{scalar-vs-simd.jpg}
+    \caption{Scalar operations are applied sequentially to one
+      register after another (left). SIMD operations apply the same
+      operation (``Single Instruction'') to ``Mutiple Data''
+      locations. For this the CPU provides special registers that can
+      store 4 (or more) floating point numbers.}
+  \end{figure}  
+
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{SIMD programming is done via CPU ``intrinsics''}
+
+  These are functions which the CPU vendor provides (Intel, AMD, ARM
+  ...). Unfortunately, there is no standardization, and the calls look
+  bizzare and complicated.%
+  \mypause%
+  \vskip0.1in%
+  The most detailed description on how to optimize C++ code (cache,
+  SIMD, ...) is on Agner Fog's blog. See
+  \url{https://www.agner.org/optimize/}. Excruciating details but his
+  manual on ``Optimizing Software in C++'' worth consulting if you
+  care about speed.%
+  \mypause%
+  \vskip0.1in%
+  He has a C++ library that abstracts aways much of the gory details
+  of SIMD programming. See \url{https://github.com/vectorclass}. See
+  also NSIMD library \url{https://github.com/agenium-scale/nsimd}.
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Cache-awarness and SIMD usage makes Eigen very fast}
+
+  \begin{figure}
+    \setkeys{Gin}{width=0.7\linewidth,keepaspectratio}
+    \incfig{eigen-bench-axpy.pdf}
+    \caption{Eigen peformance with vector size for a vector-vector
+      addition operation. The sudden drop in performance occurs when
+      the vector is too large to put into cache. For other benchmarks
+      see \url{http://eigen.tuxfamily.org/index.php?title=Benchmark}}
+  \end{figure}  
+
+\end{frame}
+%----------------------------------------------------------------
+
 
 \end{document}
 
