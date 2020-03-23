@@ -32,7 +32,8 @@
 
 % Uncomment appropriate command to disable/enable hiding
 \newcommand{\mypause}{\pause}
-%\newcommand{\mypause}{}
+% \newcommand{\mypause}{}
+\newcommand{\myb}[1]{{\color{blue} {#1}}}
 
 \DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
 
@@ -469,7 +470,208 @@
   \vskip0.1in%
   Another way to put it: in a Darwinian process with pressure to use
   bigger-and-bigger machines, one may select for less-than-desired
-  traits.
+  traits\footnote{Or, the likely historical 30\% unemployment and
+    potential 50\% drop in US GDP due to The Virus will put a final
+    halt to Moore's Law and we will be left with our abacuses
+    (abacii?) and log tables to compute with. We will know in a few
+    months!}.
+\end{frame}
+% ----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}[fragile]{Anatomy of a Very ``Simple'' Problem}
+
+  \myb{Numerical Methods 101: Write a function to multiply two square
+    matrices}%
+  \vskip0.1in%
+  \begin{columns}
+    \begin{column}{0.4\linewidth}
+\begin{verbatim}
+  for (auto i=0; i<N; ++i)
+    for (auto j=0; j<N; ++j) {
+      C(i,j) = 0.0;
+      for (auto k=0; k<N; ++k)
+        C(i,j) += A(i,k)*B(k,j);
+    }
+\end{verbatim}
+  \end{column}
+  
+  \begin{column}{0.5\linewidth}
+    Recall that
+    \begin{align*}
+      C_{ij} = \sum_k A_{ik} B_{kj}
+    \end{align*}
+    \mypause%
+    \vskip0.1in%
+    The solution in C++ is very simple: However, how efficient is this
+    solution?
+  \end{column}
+\end{columns}  
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{There is a long history of linear algebra libraries}
+  \footnotesize%
+  \begin{itemize}
+  \item Designing \emph{efficient} linear algebra routines is not
+    trivial, even for such ``simple'' matrix-matrix multiply problems.
+  \item Most widely used libaries are BLAS (Basic Linear Algebra
+    System) on top of which is built LAPACK (Linear Algebra Package).
+  \item BLAS provides ``basic'' routines (matrix-vector, matrix-matrix
+    multiplication, etc). LAPACK provides linear solvers, eigensystem
+    finders, Singular Value Decomposition (SVD), etc.
+  \item Created originally by Jack Dongara in 1970s. Continues to be
+    developed and optimized. Many platforms (Apple, Intel, ...) supply
+    their own highly optimized BLAS/LAPACK libaries. Other
+    ``self-tuning'' implementations also exist (see ATLAS).
+  \item Modern libraries using very clever C++ techniques are also
+    being created and extensively used. The best example I know of is
+    the Eigen C++ library (see \url{http://eigen.tuxfamily.org/}).
+  \end{itemize}
+  \normalsize%
+  \myb{Lets compare our hand-written code with Eigen and BLAS. (Look
+    at code)}
+
+\end{frame}
+% ----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{What do Eigen/BLAS know that we don't?}
+  
+  {\bf Cache usage and use of SIMD\footnote{Single Instruction
+      Multiple Data} instructions}. Modern processors have a hierachy
+  of memory locations they can access, with \emph{very} different
+  access speeds.%
+  \vskip0.1in%
+  \footnotesize%
+  \begin{columns}
+  
+    \begin{column}{0.5\linewidth}
+      \begin{figure}
+        \setkeys{Gin}{width=\linewidth,keepaspectratio}
+        \incfig{min-cache.pdf}
+        \caption{A very simple cache configuration}
+      \end{figure}
+    \end{column}
+  
+    \begin{column}{0.5\linewidth}
+      A ``cache'' is an area of memory which is close to the CPU
+      core. The memory access to the cache is very fast, compared to
+      access to main memory. The difference comes about as main memory
+      is Dynamic RAM (DRAM) v/s cache is SRAM. DRAM circuits are tiny
+      (hence more of them can be on a single chip) v/s SRAM circuits
+      which are very large. However, DRAM essentially relies
+      capacitive discharge, which is very slow.
+    \end{column}
+  \end{columns}
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Eigen and BLAS preload as much data as possible in the
+    fast cache}
+
+  \begin{itemize}
+  \item Using clever techniques, these libraries preload as much of
+    the matrix data as possible into the cache
+  \item Once loaded, the CPU can fetch this data very rapidly to
+    do the multiplication and sums.
+  \item \myb{On modern CPUS FLOPS are basically free. For example,
+      most operations take a single (even fewer) cycle.} It is the
+    memory access which is very expensive (~5-20 cycles for cache, and
+    100s of cycles for main memory). Hence, to improve performance,
+    one must make sure that cache is used in an optimal manner.
+  \end{itemize}
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Why is our matrix-matrix multiply code so slow?}
+
+  {\color{blue} Is it because of the data access pattern in
+    matrix-matrix multiply?}
+
+  \begin{figure}
+    \setkeys{Gin}{width=0.5\linewidth,keepaspectratio}
+    \incfig{mat-access.pdf}
+    \caption{In row major order (left) the \emph{rows} are kept
+      contigously. To be cache friendly one must increment the row
+      index ($i$) faster. In column major order (left) the
+      \emph{columns} are kept contigously. To be cache friendly one
+      must increment the columns $j$ index faster. \myb{For
+        matrix-matrix multiply this is impossible, as one or either
+        indexing will incur a cache miss!}}
+  \end{figure}
+
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}[fragile]{So how to overcome this seemingly ``impossible''
+    situation?}
+  \footnotesize%
+  \begin{columns}
+    
+    \begin{column}{0.4\linewidth}
+\begin{verbatim}
+  // transpose
+  Matrix T(N,N);
+  for (auto i=0; i<N; ++i)
+    for (auto j=0; j<N; ++j)
+      T(i,j) = B(j,i);
+  
+  for (auto i=0; i<N; ++i)
+    for (auto j=0; j<N; ++j) {
+      C(i,j) = 0.0;
+      for (auto k=0; k<N; ++k)
+        C(i,j) += A(i,k)*T(j,k);
+    }
+\end{verbatim}
+    \end{column}
+    
+    \begin{column}{0.6\linewidth}
+      The problem is that the matrix-matrix product is an inner
+      product of columns of $A$ with the rows of $B$. So, lets
+      \myb{copy the \emph{transpose} of $B$ matrix to a temporary
+        matrix $T$}. I.e. $T=B^{T}$. Then, the matrix-matrix multiply
+      becomes
+      \begin{align*}
+        C_{ij} = \sum_k A_{ik} T_{jk}
+      \end{align*}
+      Now, note that if the data is stored in \emph{column} major
+      order, both matrices are accessed in a cache friendly manner!%
+      \vskip0.1in%
+      This is problem and chip dependent: likely does not matter much
+      for ``small'' matrix sizes.
+    \end{column}
+  \end{columns}
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Modern CPUs very complicated: multiple levels of
+    caches, SIMD ...}
+
+  \begin{columns}
+  
+    \begin{column}{0.6\linewidth}
+      \begin{figure}
+        \setkeys{Gin}{width=0.8\linewidth,keepaspectratio}
+        \incfig{three-level-cache.pdf}
+      \end{figure}
+    \end{column}
+  
+    \begin{column}{0.4\linewidth}
+      A more realistic processor with three levels of cache. Caches
+      further from the CPU core are slower, but larger. On my MacBook
+      Pro I have 32KB L1 Cache, 256KB L2 Cache and 6MB L3 Cache. In
+      contrast I have 16GB of main memory!
+    \end{column}
+  \end{columns}  
+  
 \end{frame}
 %----------------------------------------------------------------
 

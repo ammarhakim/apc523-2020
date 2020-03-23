@@ -1,0 +1,7 @@
+Timing for matrix-matrix multiply test
+
+| Test       | 64x64 | 128x128 | 256x256 |
+|------------+-------+---------+---------|
+| cnaive     |       |         |         |
+| ctranspose |       |         |         |
+| ceigen     |       |         |         |
