@@ -7,4 +7,5 @@ build/*
 *.toc
 *.bp
 *.h5
+*.o
 *~

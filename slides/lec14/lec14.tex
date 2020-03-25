@@ -108,6 +108,7 @@
 
 % ----------------------------------------------------------------
 \begin{frame}{How fast (in principle) is my Mac?}
+  \footnotesize%
   Mid 2015, Intel Core i7 chip.  See
   \href{https://everymac.com/systems/apple/macbook_pro/specs/macbook-pro-core-i7-2.8-15-iris-only-mid-2015-retina-display-specs.html}{See
     this page} for info on chips which ship with different
@@ -130,7 +131,12 @@
   \end{itemize}
   Our Eigen double matrix-matrix multiply peaked at about $8$~GFLOPS
   on a single core. Float matrix-matrix multiple peaked at about
-  $15$~GFLOPS.
+  $15$~GFLOPS.%
+  \mypause%
+  \vskip0.1in%
+  Eigen's peformance comes from ``tiling'' the matrix and using SIMD
+  instructions. (Most PDE solvers can't always use such tricks. Linear
+  algebra is very specialized. Best left to experts). 
 \end{frame}
 % ----------------------------------------------------------------
 
@@ -138,10 +144,10 @@
 \begin{frame}{It is hard to achieve anything close to
     peak-performance}
   \begin{itemize}
-  \item Memory access will slow down a program by a lot: FLOPS is not
-    the only thing that matters!
+  \item Memory access will slow down a program by a lot: FLOPS are not
+    the only thing that matter!
   \item If you get between $10$-$20\%$ peak you are in (very) good
-    shape.
+    shape. More likely, $5\%$ peak is reasonable.
   \item My team's code ({\tt Gkeyll}) gets 500~GFLOPS for some compute
     kernels on an Intel Skylake chip (peak-performance of
     3~TFLOPS). Does not use SIMD vectorization (due to our code
@@ -150,58 +156,137 @@
     4-core Mac. (Skylake chips have 48 cores and are $3\times$
     faster).
   \end{itemize}
+  {\bf Study Agner Fog's optimization manuals if you are serious about
+    optimization}. PU PICSciE (Reasearch Computing) offers workshops.
 \end{frame}
 % ----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Some (brief) notes on software engineering}
+  \footnotesize%
+  If you read only one book on Software Engineering, it
+  should be the ``Mythical Man Month''.
+
+  \begin{columns}
+    \begin{column}{0.4\linewidth}
+      \includegraphics[width=0.8\linewidth]{mmm.pdf}
+    \end{column}
+    
+    \begin{column}{0.6\linewidth}
+      TL;DR Version: 
+      \begin{itemize}
+      \item Writing large-scale software programs is hard. 
+      \item Techiques that work on small projects don't scale to large
+        projects. It is important to learn by looking at good, large
+        code bases.
+      \item Most of physicists won't work on such projects, but these
+        are now becoming increasingly important. Consider the SCIDAC
+        program, which supports huge codes, running into 100K+ (even
+        millions of) lines of code (LOC), with multiple developers,
+        are massively parallel and are designed to solve very complex
+        physical problems.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+    
+\end{frame}
+%----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Some (brief) notes on software engineering}
+  \footnotesize%
+  Large-scale computational physics software is, in some ways, even
+  harder, as it is not clear if one is solving the equations correctly
+  (\emph{verification}) and if one has the correct model in the first
+  place (\emph{validation}). \emph{Regression testing} and careful
+  benchmarks are essential to build confidence.
+  % 
+  \mypause%
+  \vskip0.05in%
+  Some general recommendations for ``small'' projects (thesis level)
+  \begin{itemize}
+  \item Unless you are working on an existing ``old'' code, use modern
+    C++. It is hard to find libraries, and general support for
+    high-level things in Fortran (scripting, flexible input files,
+    ...). Hard to find jobs.%
+    \mypause%
+  \item Don't invent your own. There are a huge amount of existing
+    math libraries (LAPACK/BLAS, GSL, PETSC, Eigen, Boost, FFTW,
+    SuperLU, HDF5 ....), and it is unlikely you can write a better
+    routine in a short amount of time.%
+    \mypause%
+  \item Use a version control system, \emph{even for small
+      projects}. Git is a good option, and code can be hosted for free
+    on github or bitbucket.%
+    \mypause%
+  \item Use an automated build system. \href{https://cmake.org}{CMake}
+    has a lot of momentum, and is a very good choice. There are other
+    possible choices too. I like \href{https://waf.io}{Waf} a lot.
+  \end{itemize}
+  \mypause%
+  A reasonable stack: C++ and Eigen with CMake build system, with HDF5
+  or NETCDF output format, GSL, PETSC, ..., and post-processing using
+  Python (Anaconda Python is an excellent free distribution with
+  everything you need to do viz in 2D and 3D).
+\end{frame}
+%----------------------------------------------------------------
 
 %----------------------------------------------------------------
 \begin{frame}{Two major types of parallel programming in computational
     physics}
 
-  To remain abstract, I will use ``Processing Unit'' (PU) as a
-  short-hand. It could mean independent CPUs, threads or cores.
+  To remain abstract, I will use ``core'' as a short-hand. It means an
+  independent execution unit. Depends on context (CPU core, thread,
+  etc)
   \begin{itemize}
-  \item In \emph{Shared memory} parallel programming, different PUs
-    may run different or same code, but have access to the same
-    \emph{memory}. Synchronization of read/writes is a major issue.
+  \item In \emph{Shared memory} parallel programming, different cores
+    may run different or same code, {\bf but have access to the same
+      memory}. Synchronization of read/writes to memory is a major
+    issue. Needs locking mechanism.
   \item Shared memory systems usually use ``threads''. These are
-    separate code execution paths. A CPU runs a thread for a bit, stops
-    it, and then runs another thread. Complex programs can have
+    separate code execution paths. A core runs a thread for a bit,
+    stops it, and then runs another thread. Complex programs can have
     hundreds of threads. %
     \mypause%
-  \item In the second type, \emph{distributed memory}, each PU
-    executes the same (or less often different) code, but on their own
-    portions of the memory. Can't directly touch memory owned by
-    others. Communication is done via \emph{message passing}. This is
-    the most common pattern in code which solves PDEs (either via grid
-    or PIC methods).
+  \item In the second type, \emph{distributed memory}, each core
+    executes the same (or less often, different) code, but on their
+    {\bf own portions of the memory}. Can't directly touch memory
+    owned by others. Communication is done via \emph{message
+      passing}. This is the most common pattern in code which solves
+    PDEs (either via grid or particle methods).
   \end{itemize}
   Not the only type of parallel or distributed programming!
 \end{frame}
 % ----------------------------------------------------------------
 
-%----------------------------------------------------------------
-\begin{frame}{Alice and Bob eat lunch}
-
-  {\color{blue} Imagine Alice is in one city, and Bob in another. How
-    can we ensure Alice eats lunch \emph{before} Bob?}  \vskip0.1in%
+% ----------------------------------------------------------------
+\begin{frame}{Concurrency is important, not just in computational physics}
+  Think of Facebook, Twitter, WhatsApp or Amazon AWS. These are
+  \emph{massively concurrent} systems with millions of people
+  connected at the same time, commenting, sending messages
+  etc. Extremely difficult problem!%
   \mypause%
-  Note that we can't rely on clocks, as clocks may not be accurate,
-  and not every event (in life as well a computer) has a time-stamp
-  associated with it.%
-  \vskip0.1in%
-  \mypause%
-  Obviously solution: Bob \emph{waits} for Alice to call him after she
-  eats lunch. Then Bob eats lunch. (Blocking receive)%
-  \vskip0.1in%
-  \mypause%
-  Bob keeps doing his stuff, and every time he gets hungry, he checks
-  if Alice left him the \emph{correct} message. If yes, he eat, or
-  else he goes back to doing other things. (Non-blocking receive)%
-  \vskip0.1in%
-  \mypause%
-  If Alice never calls, Bob will starve to death.
+  \begin{itemize}
+  \item Many specialized libraries for such applications. Example,
+    \href{https://zeromq.org}{ZeroMQ} (also based on message
+    passing. Almost magical library for concurrency) and
+    \href{https://redis.io}{Redis} (in-memory concurrent
+    database. Insanely beautiful. Used in Twitter ``Timeline''
+    feature).%
+    \mypause%
+  \item Specialized languages developed for massively concurrent
+    systems. Example, \href{https://www.erlang.org}{Erlang}. Designed
+    to be fault tolerant and massively distributed. Used in
+    WhatsApp. Other example is the \href{https://golang.org}{Go}
+    programing language.
+  \item These specialized languages are \emph{functional languages}
+    that have \emph{immutable} datastructures, making concurrency much
+    easier to implement.
+  \end{itemize}
+  
 \end{frame}
-%----------------------------------------------------------------
+% ----------------------------------------------------------------
+
 
 %----------------------------------------------------------------
 \begin{frame}{The Message Passing Interface (MPI) Standard}
@@ -211,62 +296,23 @@
   computers. Unlikely to go away even with future architectures.%
   \vskip0.1in%
   These programs have a (mostly) single instruction set that runs on
-  each PUs, however, on different portions of the data. Messaging is
-  done by explicitly sending \emph{messages} between PUs.%
+  each core, however, on different portions of the data. Messaging is
+  done by explicitly sending \emph{messages} between cores.%
   \vskip0.1in%
   \mypause%
   {\color{blue} Problem: You are given a (huge) array of numbers,
-    $a_i$. You are to create a new array with elements $a_i^2$, and
-    determine the sum $\sum_i a_i^2$.}%
-  \mypause%
+    $a_i$ for $0\le i < N$. Compute the sum $\sum_i 1/2^{a[i]}$.  Test
+    this with $a[i] = i$. (i.e. compute the sum
+    $\sum_{i=0}^{N-1} 1/2^i$)} \mypause%
   \vskip0.1in%
-  This is a type of \emph{map-reduce} pattern: apply a function
-  (square) to each element (\emph{map} operation), and find its sum
-  (\emph{reduce} operation). An old concept from LISP, made famous by
-  Google, and now used extensively for ``Big Data''
-  applications. Also, many numerical codes work in this way($++$).%
+  This is a type of \emph{map-reduce} pattern: apply a function to
+  each element (\emph{map} operation), and find its sum (\emph{reduce}
+  operation). An old concept from LISP, made famous by Google, and now
+  used extensively for ``Big Data'' applications. Also, many numerical
+  codes work in this way.%
   \vskip0.1in%
-  We will use this example to learn some MPI.
-\end{frame}
-%----------------------------------------------------------------
-
-%----------------------------------------------------------------
-\begin{frame}{An important thing to remember about MPI}
-
-  {\color{blue} All PUs execute the same code. Subtle errors if there
-    are execution paths which are different and incompatible for
-    different PUs. For example: if you wait to receive data, and no
-    one sends it, you \emph{will} hang. Often, very hard to debug.}
-
-\end{frame}
-%----------------------------------------------------------------
-
-%----------------------------------------------------------------
-\begin{frame}{MPI Communicators, rank and blocking/non-blocking calls}
-  \footnotesize%
-  \begin{itemize}
-  \item PUs can be grouped to form communicators ({\tt
-      MPI\_Comm}). When program starts, a global communicator with all
-    PUs is created for you ({\tt MPI\_COMM\_WORLD}). You can create
-    sub-communicators if you want (rarely need to do this).
-  \item The rank of a PUs is an integer \emph{starting from 0}. Each
-    PU has a unique rank.
-  \item For many communication methods, there are \emph{blocking} and
-    \emph{non-blocking} versions.
-  \item When you use a \emph{blocking} version of a call, the code waits
-    for the operation to be completed.
-  \item When you use a \emph{non-blocking} version of a call, the code
-    immediately continues, \emph{even if the operation is not
-      complete}.
-  \item Non-blocking calls can be more efficient, as you can overlap
-    communication and computation. However, it can lead to nasty
-    bugs. In particular, non-blocking receives are very confusing. You
-    \emph{must not} use the ``received'' data before it is actually
-    received.
-  \item MPI provides means of waiting for a send or receive to
-    finish. These must be used to get synchronization correct.
-  \end{itemize}
-  
+  We will use this example to learn some MPI. {\color{blue} Not
+    trivial problem. Try this for homework on your own.}
 \end{frame}
 %----------------------------------------------------------------
 
@@ -284,15 +330,15 @@
   \begin{itemize}
   \item Update local portion of fields using algorithm (RK updates,
     finite-differences, upwinding, etc.)
-  \item Communicate with neighboring PUs to ``synchronize'' field data
+  \item Communicate with neighboring cores to ``synchronize'' field data
     before next time-step is taken.
   \end{itemize}
   \mypause%
   Periodically, field data is written out. Here there are two choices
   \begin{itemize}
-  \item Each PU writes to its \emph{own} file. These can be combined
+  \item Each core writes to its \emph{own} file. These can be combined
     as post-processing to do analysis/visualization
-  \item All PUs write to the \emph{same} file concurrently. Avoids
+  \item All cores write to the \emph{same} file concurrently. Avoids
     need of combining later, but can be difficult to do. (Although
     there are libraries like HDF5 and NETCDF which you can/should
     use).
@@ -306,7 +352,7 @@
 
   We saw an example of 1D domain decomposition. The idea was to split
   the domain up into approximately equal pieces (``load balanced''),
-  and each piece is then handled by a separate PU.%
+  and each piece is then handled by a separate core.%
   \vskip0.1in%
   Domain decomposition is much harder in higher dimensions, specially
   when using unstructured grids.%
@@ -332,7 +378,7 @@
     \setkeys{Gin}{width=0.5\linewidth,keepaspectratio}
     \incfig{two-by-two-decomp.png}
     \caption{A simple domain decomposition of a $100\times 100$ domain
-    in 4 sub-domains. Each colored block is handled by a separate PU.}
+    in 4 sub-domains. Each colored block is handled by a separate core.}
   \end{figure}
 
 \end{frame}
@@ -345,33 +391,37 @@
     \setkeys{Gin}{width=0.5\linewidth,keepaspectratio}
     \incfig{five-decomp.png}
     \caption{A general domain decomposition of a $100\times 100$ domain
-    in 5 sub-domains. Each colored block is handled by a separate PU.}
+    in 5 sub-domains. Each colored block is handled by a separate core.}
   \end{figure}
 
 \end{frame}
 %----------------------------------------------------------------
 
 %----------------------------------------------------------------
-\begin{frame}{For unstructured grids, the domain decomposition is
-    \emph{much} more complex and communication is \emph{much} harder}
+\begin{frame}{For unstructured grids domain decomposition is more
+    complex}
 
-  \begin{figure}
-    \setkeys{Gin}{width=0.5\linewidth,keepaspectratio}
-    \incfig{shuttle16partitions.png}
-    \caption{Domain decomposition on the exterior of the space
+  \begin{columns}
+    
+    \begin{column}{0.6\linewidth}
+      \includegraphics[width=\linewidth]{shuttle16partitions.png}
+    \end{column}
+    
+    \begin{column}{0.4\linewidth}
+      Domain decomposition on the exterior of the space
       shuttle. Notice the complicated sub-domain shapes. To create
-      these decomposition is a non-trivial problem, and libraries like
-      {\tt METIS} should be used. Communication between sub-domains is
-      very complex in such situations, and requires significant
-      book-keeping. (Caveats about unstructured meshes)}
-  \end{figure}  
+      these decomposition is a non-trivial problem, and libraries
+      should be used. Communication between sub-domains is very
+      complex in such situations, and requires significant
+      book-keeping. (Caveats about unstructured meshes)
+    \end{column}
+  \end{columns}  
 
 \end{frame}
 %----------------------------------------------------------------
 
 %----------------------------------------------------------------
-\begin{frame}{What data to communicate between sub-domains? Ghost and
-    skin cells}
+\begin{frame}{Use Ghost/Skin cellscommunicate between sub-domains}
 
   Consider the finite-difference approximation to $g=f_{xx}$
   \begin{align*}
@@ -387,7 +437,7 @@
   \vskip0.1in%
   These outside cells are called ``ghost cells''. They are very useful
   for applying boundary conditions and are \emph{essential} for
-  synchronization across PUs when doing a parallel job.
+  synchronization across cores when doing a parallel job.
 
 \end{frame}
 %----------------------------------------------------------------
@@ -396,13 +446,18 @@
 \begin{frame}{Ghost cells are the layer of cells \emph{outside}
     sub-domain}
 
-  \begin{figure}
-    \setkeys{Gin}{width=0.5\linewidth,keepaspectratio}
-    \incfig{ghost-cells.png}
-    \caption{The layer of cells on the right (pale blue) are the
-      \emph{ghost cells} for the sub-domain (blue). They lie
-      \emph{outside} the sub-domain.}
-  \end{figure}  
+  \begin{columns}
+    
+    \begin{column}{0.6\linewidth}
+      \includegraphics[width=0.9\linewidth]{ghost-cells.png}
+    \end{column}
+    
+    \begin{column}{0.4\linewidth}
+      The layer of cells on the right (pale blue) are the \emph{ghost
+        cells} for the sub-domain (blue). They lie \emph{outside} the
+      sub-domain.
+    \end{column}
+  \end{columns}
 
 \end{frame}
 %----------------------------------------------------------------
@@ -410,26 +465,27 @@
 %----------------------------------------------------------------
 \begin{frame}{Skin cells are layer of cells \emph{inside} sub-domain}
 
-  \begin{figure}
-    \setkeys{Gin}{width=0.45\linewidth,keepaspectratio}
-    %\incfig{ghost-cells.png}
-    \incfig{skin-cells.png}
-    \caption{The layer of cells on the left (pale blue) are the
-      \emph{skin cells} for the sub-domain (blue). They lie
-      \emph{inside} the sub-domain.}
-    \caption{}
-  \end{figure}  
+  \begin{columns}
+    
+    \begin{column}{0.6\linewidth}
+      \includegraphics[width=0.9\linewidth]{skin-cells.png}
+    \end{column}
+    
+    \begin{column}{0.4\linewidth}
+      The layer of cells on the left (pale green) are the \emph{skin
+        cells} for the sub-domain (blue). They lie \emph{inside} the
+      sub-domain.
+    \end{column}
+  \end{columns}  
 
 \end{frame}
 %----------------------------------------------------------------
 
 %----------------------------------------------------------------
-\begin{frame}{For proper synchronization we must copy data from
-    skin-cells of one sub-domain to the appropriate ghost-cells of
-    another sub-domain}
+\begin{frame}{To synchronize copy data from skin-cells to ghost-cells}
 
   \begin{figure}
-    \setkeys{Gin}{width=0.45\linewidth,keepaspectratio}
+    \setkeys{Gin}{width=0.35\linewidth,keepaspectratio}
     \incfig{ghost-cells.png}
     \incfig{skin-cells.png}
     \caption{Before each time-step we must copy data from pale green
@@ -441,11 +497,11 @@
 %----------------------------------------------------------------
 
 %----------------------------------------------------------------
-\begin{frame}{Note that ghost/skin cell distribution is determined by
-    the \emph{stencil} for your difference scheme}
+\begin{frame}{Ghost/Skin cell distribution is determined by the
+    \emph{stencil}}
 
   \begin{figure}
-    \setkeys{Gin}{width=0.4\linewidth,keepaspectratio}
+    \setkeys{Gin}{width=0.3\linewidth,keepaspectratio}
     \incfig{5point-laplacian.png}
     \incfig{9point-laplacian.pdf}
     \caption{5-point stencil (left) and 9-point stencil (right) for a
@@ -460,25 +516,82 @@
 
 %----------------------------------------------------------------
 \begin{frame}{For unstructured meshes, things can get \emph{very}
-    nasty if you use a non-compact stencil}
+    nasty}
 
-  \begin{figure}
-    \setkeys{Gin}{width=0.5\linewidth,keepaspectratio}
-    \incfig{unstruct-stencil.pdf}
-    \caption{To update dark blue cell, a compact stencil would need
-      only face neighbors. However, a non-compact stencil would need a
+  \begin{columns}
+    
+    \begin{column}{0.4\linewidth}
+      \includegraphics[width=1.0\linewidth]{unstruct-stencil.pdf}
+    \end{column}
+    
+    \begin{column}{0.6\linewidth}
+      To update dark blue cell, some scheme would need only face
+      neighbors. However, some higher-order methods would need a
       bigger stencil, shown here in pale blue for a third order
       finite-volume scheme. The ghost/skin cell determination and
-      parallel communication is very complicated. \emph{Schemes which
-        involve such wide stencils should be avoided}.}
-\end{figure}  
+      parallel communication is very complicated.
+    \end{column}
+  \end{columns}
 
+\end{frame}
+% ----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{Alice and Bob eat lunch}
+
+  {\color{blue} Imagine Alice is in one city, and Bob in another. How
+    can we ensure Alice eats lunch \emph{before} Bob?}  \vskip0.1in%
+  \mypause%
+  Note that we can't rely on clocks, as clocks may not be accurate,
+  and not every event (in life as well a computer) has a time-stamp
+  associated with it.%
+  \vskip0.1in%
+  \mypause%
+  Obvious solution: Bob \emph{waits} for Alice to call him after she
+  eats lunch. Then Bob eats lunch. (Blocking receive)%
+  \vskip0.1in%
+  \mypause%
+  Bob keeps doing his stuff, and every time he gets hungry, he checks
+  if Alice left him the \emph{correct} message. If yes, he eat, or
+  else he goes back to doing other things. (Non-blocking receive)%
+  \vskip0.1in%
+  \mypause%
+  If Alice never calls, Bob will starve to death.
+\end{frame}
+% ----------------------------------------------------------------
+
+%----------------------------------------------------------------
+\begin{frame}{MPI Communicators, rank and blocking/non-blocking calls}
+  \footnotesize%
+  \begin{itemize}
+  \item Cores can be grouped to form communicators ({\tt
+      MPI\_Comm}). When program starts, a global communicator with all
+    cores is created for you ({\tt MPI\_COMM\_WORLD}). You can create
+    sub-communicators if you want (rarely need to do this).
+  \item The rank of a cores is an integer \emph{starting from 0}. Each
+    core has a unique rank.
+  \item For many communication methods, there are \emph{blocking} and
+    \emph{non-blocking} versions.
+  \item When you use a \emph{blocking} version of a call, the code waits
+    for the operation to be completed.
+  \item When you use a \emph{non-blocking} version of a call, the code
+    immediately continues, \emph{even if the operation is not
+      complete}.
+  \item Non-blocking calls can be more efficient, as you can overlap
+    communication and computation. However, it can lead to nasty
+    bugs. In particular, non-blocking receives are very confusing. You
+    \emph{must not} use the ``received'' data before it is actually
+    received.
+  \item MPI provides means of waiting for a send or receive to
+    finish. These must be used to get synchronization correct.
+  \end{itemize}
+  
 \end{frame}
 %----------------------------------------------------------------
 
 %----------------------------------------------------------------
-\begin{frame}{To send/receive arrays between PUs one needs to use the
-    {\tt MPI\_Send} and {\tt MPI\_Recv} functions}
+\begin{frame}{To send/receive one needs to use {\tt MPI\_Send} and
+    {\tt MPI\_Recv}}
 
   There are two versions of each call
   \begin{itemize}
@@ -515,11 +628,11 @@
   \item \myb{\tt count}\ Is the size of the array you are sending
   \item \myb{\tt datatype}\ Is the type of data you are sending (doubles,
     floats, ...)
-  \item \myb{\tt dest}\ Is the rank of the \emph{destination} PU you want
+  \item \myb{\tt dest}\ Is the rank of the \emph{destination} core you want
     to send the array to
   \item \myb{\tt tag}\ is a unique tag attached to each message (this
     distinguishes multiple message between the same pair of
-    communicating PUs)
+    communicating cores)
   \item \myb{\tt comm}\ Is the communicator group you are using
   \end{itemize}
   The {\tt MPI\_Recv} signature is analogous. Note that \emph{a send
@@ -529,8 +642,8 @@
 %----------------------------------------------------------------
 
 %----------------------------------------------------------------
-\begin{frame}{If you use a {\tt MPI\_Irecv} call, then you \emph{must}
-    wait before you use the expected data}
+\begin{frame}{With {\tt MPI\_Irecv} call you \emph{must} wait before
+    you use the data}
   
   After calling a {\tt MPI\_Irecv} (non-blocking call) you can do
   other things. However, \emph{before} you use the data you are
@@ -588,3 +701,14 @@
 \end{columns}
 
 % ----------------------------------------------------------------
+
+\begin{columns}
+
+  \begin{column}{0.4\linewidth}
+    \includegraphics[width=\linewidth]{fig/Kinsey_2011_Pfus_vs_T.pdf}
+  \end{column}
+  
+  \begin{column}{0.6\linewidth}
+  \end{column}
+  
+\end{columns}
