@@ -134,7 +134,7 @@
   $15$~GFLOPS.%
   \mypause%
   \vskip0.1in%
-  Eigen's peformance comes from ``tiling'' the matrix and using SIMD
+  Eigen's performance comes from ``tiling'' the matrix and using SIMD
   instructions. (Most PDE solvers can't always use such tricks. Linear
   algebra is very specialized. Best left to experts). 
 \end{frame}
@@ -157,7 +157,7 @@
     faster).
   \end{itemize}
   {\bf Study Agner Fog's optimization manuals if you are serious about
-    optimization}. PU PICSciE (Reasearch Computing) offers workshops.
+    optimization}. PU PICSciE (Research Computing) offers workshops.
 \end{frame}
 % ----------------------------------------------------------------
 
@@ -176,7 +176,7 @@
       TL;DR Version: 
       \begin{itemize}
       \item Writing large-scale software programs is hard. 
-      \item Techiques that work on small projects don't scale to large
+      \item Techniques that work on small projects don't scale to large
         projects. It is important to learn by looking at good, large
         code bases.
       \item Most of physicists won't work on such projects, but these
@@ -229,7 +229,35 @@
   Python (Anaconda Python is an excellent free distribution with
   everything you need to do viz in 2D and 3D).
 \end{frame}
+% ----------------------------------------------------------------
+
 %----------------------------------------------------------------
+\begin{frame}{Programming languages for computational physics}
+  \footnotesize%
+  Somewhat personal biased views:
+  \begin{itemize}
+  \item Modern large-scale computational physics, at least the core
+    computational kernels, should be done in C++: produces highly
+    optimized code, and has huge industry support, with excellent
+    compilers available on every conceivable platform. Vast majority
+    of time-critical code \emph{anywhere} is written in C or C++.%
+    \mypause%
+  \item Why not C++? It is difficult to learn, and really ugly.
+    \mypause%
+  \item Modern C++ (post 2011) has fixed some historical issues, with
+    very elegant new features useful in computational physics added
+    recently (including in-built parallelism, with GPU and other
+    accelerator array data-structures being proposed as part of a
+    future standard).%
+    \mypause%
+  \item An ideal combination: C++ called from a scripting language
+    like Python or Lua. Done extensively, for example in video games
+    and major Internet appliances. My own code uses C++ and LuaJIT.
+  \end{itemize}
+  JIT: Just-in-Time compilers generate machine code on-the-fly. Can be
+  very efficient but need some care.
+\end{frame}
+% ----------------------------------------------------------------  
 
 %----------------------------------------------------------------
 \begin{frame}{Two major types of parallel programming in computational
@@ -278,7 +306,7 @@
     systems. Example, \href{https://www.erlang.org}{Erlang}. Designed
     to be fault tolerant and massively distributed. Used in
     WhatsApp. Other example is the \href{https://golang.org}{Go}
-    programing language.
+    programming language.
   \item These specialized languages are \emph{functional languages}
     that have \emph{immutable} datastructures, making concurrency much
     easier to implement.
@@ -421,7 +449,7 @@
 %----------------------------------------------------------------
 
 %----------------------------------------------------------------
-\begin{frame}{Use Ghost/Skin cellscommunicate between sub-domains}
+\begin{frame}{Use Ghost/Skin cells to communicate between sub-domains}
 
   Consider the finite-difference approximation to $g=f_{xx}$
   \begin{align*}
@@ -681,7 +709,32 @@
   \end{itemize}
 
 \end{frame}
-%----------------------------------------------------------------
+% ----------------------------------------------------------------
+
+% ----------------------------------------------------------------
+\begin{frame}{What we did not cover ...}
+  \begin{itemize}
+  \item OpenMP programming for shared memory parallelism. This is a
+    ``directives'' based model, in which you insert ``pragma''s into
+    the code, telling the compiler which parts of the code to
+    parallelize
+  \item Compiler will generate threads to run the loops etc in
+    parallel. Easy to use. Not much control. Also, launching threads
+    can be expensive.%
+    \mypause%
+  \item Alternate to OpenMP shared memory programming is to use MPI
+    for shared memory: more complex but full control and no threads
+    are launched.
+  \item When using C++ you can also just use C++ {\tt std::thread} and
+    concurrency built into the language. Difficult at first, but very
+    powerful.%
+    \mypause%
+  \item GPU programming: this is a world onto itself. Most codes will
+    need major rewrites to work on GPUs. PU PICSciE (Research
+    Computing) offers workshops.
+  \end{itemize}
+\end{frame}
+% ----------------------------------------------------------------
 
 \end{document}
 

@@ -41,7 +41,7 @@ and the code I ran in class by cloning the `Github repo
 Lecture 13: Hardware and Software Issues in Computational Physics
 -----------------------------------------------------------------
 
-`PDF of Lecture 1 slides <./_static/lec13.pdf>`_
+`PDF of Lecture 13 slides <./_static/lec13.pdf>`_
 
 In this lecture we will look at hardware oriented optimization for our
 algorithms. We will begin by looking at the early history of computer
@@ -123,3 +123,14 @@ used instead. For example, Agner Fog's `VectorClass
 library <https://github.com/agenium-scale/nsimd>`_ are good libraries
 to use. (Intel has it's own library but it does not seem to be widely
 used or even maintained. I may be wrong, though).
+
+Lecture 14: Hardware and Software Issues in Computational Physics
+-----------------------------------------------------------------
+
+`PDF of Lecture 14 slides <./_static/lec14.pdf>`_
+
+In this lecture we will look at some concepts in software engineering
+and parallel programming. In particular we will focus on MPI standard,
+mentioning breifly OpenMP and GPUs. The latter are major topic in
+themselves and can't be covered in a single lecture like this.
+
