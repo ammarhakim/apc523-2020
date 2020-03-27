@@ -41,6 +41,8 @@ struct SimData {
     double cfl;
     /** Simulation end time */
     double tEnd;
+    /** Output prefix */
+    std::string outPrefix;
 };
 
 /** Structure to represent sub-domain grid */
@@ -121,14 +123,15 @@ applyInitCondition(const NameValuePair& nvPair, const Grid& grid, std::vector<do
  * Write solution to file
  *
  * @param grid Grid object
+ * @param outPrefix Output file prefix
  * @param f Field to write out
  * @param frame Frame number
  */
 void
-writeField(const Grid& grid, const std::vector<double>& f, unsigned frame) {
+writeField(const Grid& grid, const std::string& outPrefix, const std::vector<double>& f, unsigned frame) {
   int rank = getRank();
   std::ostringstream fName;
-  fName << "advection-" << frame << "_r" << rank << ".txt";
+  fName << outPrefix << "-" << frame << "_r" << rank << ".txt";
 
   // open output file
   std::ofstream outFile(fName.str());
@@ -144,10 +147,40 @@ writeField(const Grid& grid, const std::vector<double>& f, unsigned frame) {
 /**
  * Synchronize fields by copying skin-cells to ghost cells
  *
+ * @param grid Grid object
  * @param f Field to synchronize
  */
 void
-syncField(std::vector<double>& f) {
+syncField(const Grid& grid, std::vector<double>& f) {
+  int numRanks; MPI_Comm_size(MPI_COMM_WORLD, &numRanks);
+  int rank = getRank();
+  int cells = grid.cells;
+
+  do {
+    // send right skin-cell data
+    double skinVal = f[cells];
+    int destRank = rank+1 >= numRanks ? 0 : rank+1;
+    MPI_Send(&skinVal, 1, MPI_DOUBLE, destRank, 42, MPI_COMM_WORLD);
+    
+    // get left ghost-cell data
+    double ghostVal;
+    int srcRank = rank-1 < 0 ? numRanks-1 : rank-1;
+    MPI_Recv(&ghostVal, 1, MPI_DOUBLE, srcRank, 42, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    f[0] = ghostVal;
+  } while (0);
+
+  do {
+    // send left skin-cell data
+    double skinVal = f[1];
+    int destRank = rank-1 < 0 ? numRanks-1 : rank-1;
+    MPI_Send(&skinVal, 1, MPI_DOUBLE, destRank, 52, MPI_COMM_WORLD);
+  
+    // get right ghost-cell data
+    double ghostVal;
+    int srcRank = rank+1 >= numRanks ? 0 : rank+1;
+    MPI_Recv(&ghostVal, 1, MPI_DOUBLE, srcRank, 52, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    f[cells+1] = ghostVal;
+  } while(0);
 }
 
 /**
@@ -165,7 +198,7 @@ advanceByDt(double dt, const SimData& simData, const Grid& grid, const std::vect
   double speed = simData.speed;
   // loop over interior cells, updating solution
   for (auto i=1; i<=grid.cells; ++i)
-    fOut[i] = fIn[i] - speed*dt/(2*dx)*(fIn[i+1]-fIn[i-1]);
+    fOut[i] = fIn[i] - speed*dt/dx*(fIn[i]-fIn[i-1]);
 }
 
 /** Run simulation 
@@ -185,7 +218,7 @@ runSim(const NameValuePair& nvPair, const SimData& simData) {
   applyInitCondition(nvPair, grid, f);
   
   // write initial conditions to file
-  writeField(grid, f, 0);
+  writeField(grid, simData.outPrefix, f, 0);
 
   double dx = grid.dx;
   double speed = simData.speed;
@@ -200,7 +233,7 @@ runSim(const NameValuePair& nvPair, const SimData& simData) {
   // main loop: advance solution to tEnd
   while (!isDone) {
     // sync field across processors before taking a step
-    syncField(f);
+    syncField(grid, f);
 
     double myDt = dt;
     if (tCurr+dt > tEnd) {
@@ -219,7 +252,7 @@ runSim(const NameValuePair& nvPair, const SimData& simData) {
   }
 
   // write final solution to file
-  writeField(grid, f, 1);
+  writeField(grid, simData.outPrefix, f, 1);
 }
 
 int
@@ -235,8 +268,9 @@ main(int argc, char **argv) {
   }
 
   try {
+    std::string inpFile(argv[1]);
     // parse input file and populate simulation data object
-    NameValuePair nvPair = NameValuePair(argv[1]);
+    NameValuePair nvPair = NameValuePair(inpFile);
 
     SimData simData;
     simData.lower = nvPair.getValue("lower");
@@ -245,6 +279,13 @@ main(int argc, char **argv) {
     simData.cfl = nvPair.getValue("cfl");
     simData.tEnd = nvPair.getValue("tEnd");
     simData.speed = nvPair.getValue("speed");
+
+    // output prefix
+    std::string snm(inpFile);
+    auto const trunc = inpFile.find_last_of(".", snm.size());
+    if (std::string::npos != trunc)
+      snm.erase(trunc, snm.size());
+    simData.outPrefix = snm;
     
     runSim(nvPair, simData);
   }

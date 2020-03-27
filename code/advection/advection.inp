@@ -3,6 +3,6 @@
 speed = 1.0
 lower = 0.0
 upper = 1.0
-N = 32
-cfl = 0.9
-tEnd = 0.1
+N = 16
+cfl = 0.95
+tEnd = 10.0
