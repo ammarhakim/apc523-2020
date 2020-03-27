@@ -162,7 +162,7 @@ syncField(const Grid& grid, std::vector<double>& f) {
     int destRank = rank+1 >= numRanks ? 0 : rank+1;
     MPI_Send(&skinVal, 1, MPI_DOUBLE, destRank, 42, MPI_COMM_WORLD);
     
-    // get left ghost-cell data
+    // receive left ghost-cell data
     double ghostVal;
     int srcRank = rank-1 < 0 ? numRanks-1 : rank-1;
     MPI_Recv(&ghostVal, 1, MPI_DOUBLE, srcRank, 42, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -175,7 +175,7 @@ syncField(const Grid& grid, std::vector<double>& f) {
     int destRank = rank-1 < 0 ? numRanks-1 : rank-1;
     MPI_Send(&skinVal, 1, MPI_DOUBLE, destRank, 52, MPI_COMM_WORLD);
   
-    // get right ghost-cell data
+    // receive right ghost-cell data
     double ghostVal;
     int srcRank = rank+1 >= numRanks ? 0 : rank+1;
     MPI_Recv(&ghostVal, 1, MPI_DOUBLE, srcRank, 52, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -204,6 +204,7 @@ advanceByDt(double dt, const SimData& simData, const Grid& grid, const std::vect
 
 /** Run simulation 
  *
+ * @param nvPair Name-value pair from input file
  * @param simData Simulation input
  */
 void
