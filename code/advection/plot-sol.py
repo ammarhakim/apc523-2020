@@ -1,6 +1,6 @@
 from pylab import *
 
-numRanks = 3
+numRanks = 1
 
 figure(1)
 for i in range(numRanks):

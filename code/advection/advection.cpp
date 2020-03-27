@@ -197,8 +197,9 @@ advanceByDt(double dt, const SimData& simData, const Grid& grid, const std::vect
   double dx = grid.dx;
   double speed = simData.speed;
   // loop over interior cells, updating solution
-  for (auto i=1; i<=grid.cells; ++i)
+  for (auto i=1; i<=grid.cells; ++i) {
     fOut[i] = fIn[i] - speed*dt/(2*dx)*(fIn[i+1]-fIn[i-1]);
+  }
 }
 
 /** Run simulation 
@@ -223,7 +224,7 @@ runSim(const NameValuePair& nvPair, const SimData& simData) {
   double dx = grid.dx;
   double speed = simData.speed;
   // compute time-step based on CFL number
-  double dt = simData.cfl*dx/speed;
+  double dt = simData.cfl*dx/std::abs(speed);
 
   double tCurr = 0.0, tEnd = simData.tEnd;
   bool isDone = false;
