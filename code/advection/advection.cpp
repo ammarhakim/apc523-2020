@@ -198,7 +198,7 @@ advanceByDt(double dt, const SimData& simData, const Grid& grid, const std::vect
   double speed = simData.speed;
   // loop over interior cells, updating solution
   for (auto i=1; i<=grid.cells; ++i)
-    fOut[i] = fIn[i] - speed*dt/dx*(fIn[i]-fIn[i-1]);
+    fOut[i] = fIn[i] - speed*dt/(2*dx)*(fIn[i+1]-fIn[i-1]);
 }
 
 /** Run simulation 
