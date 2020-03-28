@@ -1,12 +1,12 @@
-CC = clang++ -std=c++17 # C compiler to use
+CC = mpicxx -std=c++17 # C compiler to use
 OPT = -O3 # optimization flags
 
 # MPI include library path
-MPI_INCLUDES = -I/Users/ahakim/gkylsoft/openmpi/include
+MPI_INCLUDES = 
 # Library paths
-LIB_PATH = -L/Users/ahakim/gkylsoft/openmpi/lib
+LIB_PATH = 
 # Libraries
-LIBS = -lmpi
+LIBS = 
 
 all: advection
 
