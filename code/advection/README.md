@@ -10,15 +10,18 @@ ssh -Y tigerid@adroit.princeton.edu
 
 Obviously, replace ```tigerid``` by your own Tiger ID. Adroit (and all
 PU clusters) use a module system to load software packages. You need
-to load the compilers and MPI libraries. Run the following, or add
-them to your ```.basrc``` file.
+to load the compilers, MPI libraries and Python for plotting. Run the
+following, or add them to your ```.basrc``` file.
 
 ```
 module load intel
 module load intel-mpi
+module load anaconda
 ```
 
-Now clone the repo for the lectures and code as follows:
+(Anaconda Python is a distribution of Python that contains
+pre-packaged tools for computing and plotting). Now clone the repo for
+the lectures and code as follows:
 
 ```
 git clone https://github.com/ammarhakim/apc523-2020.git
@@ -54,4 +57,15 @@ code:
 mpiexec -n 2 ./advection advection.inp
 ```
 
+The code will write 1 file per core. The initial conditions are
+written to files ```advection-0_rX.txt``` and the final solution to
+files ```advection-1_rX.txt```, where X is the rank number.
 
+Plot the solution using:
+
+```
+python plot-sol.py -n 2
+```
+
+Pass the number of processors you used to run the simulation to the
+```-n``` option.
