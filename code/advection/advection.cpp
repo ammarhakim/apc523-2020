@@ -9,6 +9,7 @@
 
 #define _USE_MATH_DEFINES
 // std includes
+#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -231,6 +232,11 @@ runSim(const NameValuePair& nvPair, const SimData& simData) {
   bool isDone = false;
   unsigned step = 1;
   int rank = getRank();
+
+  if (rank == 0)
+    std::cout << "Starting simulation ..." << std::endl;
+
+  auto startTm = std::chrono::steady_clock::now();
   
   // main loop: advance solution to tEnd
   while (!isDone) {
@@ -252,6 +258,11 @@ runSim(const NameValuePair& nvPair, const SimData& simData) {
     tCurr += myDt;
     step += 1;
   }
+  auto endTm = std::chrono::steady_clock::now();
+  auto runTm = std::chrono::duration_cast<std::chrono::microseconds>(endTm-startTm).count();
+
+  if (rank == 0)
+    std::cout << "... simulation completed in " << runTm/1e6 << " sec" <<  std::endl;
 
   // write final solution to file
   writeField(grid, simData.outPrefix, f, 1);
