@@ -157,16 +157,24 @@ syncField(const Grid& grid, std::vector<double>& f) {
   int rank = getRank();
   int cells = grid.cells;
 
+  if (numRanks == 1) {
+    // no need to send/recv on 1 processor
+    f[0] = f[cells];
+    f[cells+1] = f[1];
+    return;
+  }
+
   do {
     // send right skin-cell data
     double skinVal = f[cells];
     int destRank = rank+1 >= numRanks ? 0 : rank+1;
     MPI_Send(&skinVal, 1, MPI_DOUBLE, destRank, 42, MPI_COMM_WORLD);
-    
+
     // receive left ghost-cell data
     double ghostVal;
     int srcRank = rank-1 < 0 ? numRanks-1 : rank-1;
     MPI_Recv(&ghostVal, 1, MPI_DOUBLE, srcRank, 42, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
     f[0] = ghostVal;
   } while (0);
 
