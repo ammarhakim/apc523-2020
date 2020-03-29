@@ -16,7 +16,7 @@ ssh -Y tigerid@adroit.princeton.edu
 Obviously, replace ```tigerid``` by your own Tiger ID. Adroit (and all
 PU clusters) use a module system to load software packages. You need
 to load the compilers, MPI libraries and Python for plotting. Run the
-following, or add them to your ```.basrc``` file.
+following, or add them to your ```.bashrc``` file.
 
 ```
 module load intel
