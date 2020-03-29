@@ -54,9 +54,9 @@ You can't run this executable on the head node, but need to get an
 salloc --ntasks=4 --time=00:10:00
 ```
 
-This will allow you to run the job on at mode 4 cores for 10 minutes
-or less. Once you get an interactive session you can run the advection
-code:
+This will allow you to run the job on at most 4 cores for 10 minutes
+or less. Once you get an interactive session (there is usually only 
+a few seconds delay) you can run the advection code:
 
 ```
 mpiexec -n 2 ./advection advection.inp
@@ -75,6 +75,8 @@ python plot-sol.py -n 2
 Pass the number of processors you used to run the simulation to the
 ```-n``` option.
 
+After you finish your interactive sesion with the 4 cores, type 
+"exit" to return to your login session on the head node.
 
 For more information on using Adroit, see the
 [Adroit tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
