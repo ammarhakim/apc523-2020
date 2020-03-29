@@ -10,7 +10,7 @@ installed on your computer, log on to Adroit with your Tiger
 ID name:
 
 ```
-ssh -Y tigerid@adroit.princeton.edu
+ssh -X tigerid@adroit.princeton.edu
 ```
 
 Obviously, replace ```tigerid``` by your own Tiger ID. Adroit (and all
