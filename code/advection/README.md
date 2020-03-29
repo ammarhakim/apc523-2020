@@ -78,5 +78,11 @@ Pass the number of processors you used to run the simulation to the
 After you finish your interactive sesion with the 4 cores, type 
 "exit" to return to your login session on the head node.
 
+In order for the plotting to work, you need an "X Windows" server
+installed on your computer.  On a Mac, you can download and install
+the [XQuartz server](https://support.apple.com/en-us/HT201341).
+There are also X Windows servers (such as Xming) that can be
+installed for PCs.  Linux machines have X Windows by default.
+
 For more information on using Adroit, see the
 [Adroit tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
