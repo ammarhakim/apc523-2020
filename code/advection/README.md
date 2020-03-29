@@ -1,8 +1,13 @@
 # Building and running on Adroit
 
 Everyone with a Tiger ID should have access to "adroit", Princeton
-University's training cluster. You need to enable Duo Authenticate to
-access Adroit. Log on to Adroit with your Tiger ID name:
+University's training cluster.  You need to first set up a VPN
+connection to vpn.princeton.edu which you probably already do.
+(We recommend 
+[SonicWall](https://princeton.service-now.com/snap?sys_id=6023&id=kb_article).
+This involves using Duo Authenticate.) Assuming you have ssh 
+installed on your computer, log on to Adroit with your Tiger
+ID name:
 
 ```
 ssh -Y tigerid@adroit.princeton.edu
@@ -11,7 +16,7 @@ ssh -Y tigerid@adroit.princeton.edu
 Obviously, replace ```tigerid``` by your own Tiger ID. Adroit (and all
 PU clusters) use a module system to load software packages. You need
 to load the compilers, MPI libraries and Python for plotting. Run the
-following, or add them to your ```.basrc``` file.
+following, or add them to your ```.bashrc``` file.
 
 ```
 module load intel
@@ -49,9 +54,9 @@ You can't run this executable on the head node, but need to get an
 salloc --ntasks=4 --time=00:10:00
 ```
 
-This will allow you to run the job on at mode 4 cores for 10 minutes
-or less. Once you get an interactive session you can run the advection
-code:
+This will allow you to run the job on at most 4 cores for 10 minutes
+or less. Once you get an interactive session (there is usually only 
+a few seconds delay) you can run the advection code:
 
 ```
 mpiexec -n 2 ./advection advection.inp
@@ -69,3 +74,15 @@ python plot-sol.py -n 2
 
 Pass the number of processors you used to run the simulation to the
 ```-n``` option.
+
+After you finish your interactive sesion with the 4 cores, type 
+"exit" to return to your login session on the head node.
+
+In order for the plotting to work, you need an "X Windows" server
+installed on your computer.  On a Mac, you can download and install
+the [XQuartz server](https://support.apple.com/en-us/HT201341).
+There are also X Windows servers (such as Xming) that can be
+installed for PCs.  Linux machines have X Windows by default.
+
+For more information on using Adroit, see the
+[Adroit tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
