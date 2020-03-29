@@ -82,7 +82,10 @@ In order for the plotting to work, you need an "X Windows" server
 installed on your computer.  On a Mac, you can download and install
 the [XQuartz server](https://support.apple.com/en-us/HT201341).
 There are also X Windows servers (such as Xming) that can be
-installed for PCs.  Linux machines have X Windows by default.
+installed for PCs.  Linux machines have X Windows by default. If
+you have a hard time getting an X Windows server, a workaround is
+to ship the output files to your own computer and run the
+python plotting script on your own computer.
 
 For more information on using Adroit, see the
 [Adroit tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
