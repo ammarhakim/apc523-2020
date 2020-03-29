@@ -14,9 +14,13 @@ ssh -X tigerid@adroit.princeton.edu
 ```
 
 Obviously, replace ```tigerid``` by your own Tiger ID. Adroit (and all
-PU clusters) use a module system to load software packages. You need
-to load the compilers, MPI libraries and Python for plotting. Run the
-following, or add them to your ```.bashrc``` file.
+PU clusters) use a module system to load software packages. For more
+information on using Adroit, see the [Adroit
+tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
+
+
+You need to load the compilers, MPI libraries and Python for
+plotting. Run the following, or add them to your ```.bashrc``` file.
 
 ```
 module load intel
@@ -51,7 +55,7 @@ You can't run this executable on the head node, but need to get an
 "interactive" queue. To do this, run:
 
 ```
-salloc --ntasks=4 --time=00:10:00
+salloc --ntasks=4 --time=00:10:00 --x11
 ```
 
 This will allow you to run the job on at most 4 cores for 10 minutes
@@ -79,13 +83,11 @@ After you finish your interactive sesion with the 4 cores, type
 "exit" to return to your login session on the head node.
 
 In order for the plotting to work, you need an "X Windows" server
-installed on your computer.  On a Mac, you can download and install
-the [XQuartz server](https://support.apple.com/en-us/HT201341).
-There are also X Windows servers (such as Xming) that can be
-installed for PCs.  Linux machines have X Windows by default. If
-you have a hard time getting an X Windows server, a workaround is
-to ship the output files to your own computer and run the
-python plotting script on your own computer.
+installed on your local computer.  On a Mac, you can download and
+install the [XQuartz
+server](https://support.apple.com/en-us/HT201341).  There are also X
+Windows servers (such as Xming) that can be installed for PCs. Linux
+machines have X Windows by default. If you have a hard time getting an
+X Windows server, a workaround is to ship the output files to your own
+computer and run the python plotting script on it.
 
-For more information on using Adroit, see the
-[Adroit tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
