@@ -4,7 +4,7 @@ Everyone with a Tiger ID should have access to "adroit", Princeton
 University's training cluster.  You need to first set up a VPN
 connection to vpn.princeton.edu which you probably already do.
 (We recommend 
-[SonicWall](https://princeton.service-now.com/snap?sys_id=6023&id=kb_article)
+[SonicWall](https://princeton.service-now.com/snap?sys_id=6023&id=kb_article).
 This involves using Duo Authenticate.) Assuming you have ssh 
 installed on your computer, log on to Adroit with your Tiger
 ID name:
@@ -77,4 +77,4 @@ Pass the number of processors you used to run the simulation to the
 
 
 For more information on using Adroit, see the
-[tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
+[Adroit tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
