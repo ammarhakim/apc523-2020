@@ -91,6 +91,9 @@ machines have X Windows by default. If you have a hard time getting an
 X Windows server, a workaround is to ship the output files to your own
 computer and run the python plotting script on it.
 
+
+### MyAdroit alternative for plotting:
+
 An alternative to plotting using X Windows from Adroit to your
 computer is to use "MyAdroit":
 
