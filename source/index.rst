@@ -131,6 +131,58 @@ Lecture 14: Hardware and Software Issues in Computational Physics
 
 In this lecture we will look at some concepts in software engineering
 and parallel programming. In particular we will focus on MPI standard,
-mentioning breifly OpenMP and GPUs. The latter are major topic in
+mentioning briefly OpenMP and GPUs. The latter are major topic in
 themselves and can't be covered in a single lecture like this.
+
+My general recommendation for new projects is to use modern C++
+(i.e. use C++ language as standardized in 2011). Modern C++ is a very
+powerful language that has the right combination of high-level
+features and low-level control that can result in very flexible but
+optimized code. (Often, keeping a code flexible and ensuring it is
+efficient is difficult to do). Most newer large libraries being built
+are being written in C++ and it is a good to get familiar with the
+language.
+
+However, C++ is a difficult language to learn and very hard to use
+effectively. It is best to study good C++ code and apprentice to a
+"Master Craftsman" to become a real expert. I recommend `Bjarne
+Stroustrup's "The C++ Programming Language"
+<https://www.amazon.com/Programming-Language-Programm-Lang_p4-ebook/dp/B00DUW4BMS/ref=sr_1_1?crid=1A6CJEHES1P9W&keywords=the+c%2B%2B+programming+language&qid=1585578251&sprefix=the+c%2B%2B%2Caps%2C142&sr=8-1>`_
+as the standard reference. Stroustrup is the inventor of C++ and also
+wrote the first compiler for it.
+
+When using C++ use the Standard Library (called the "Standard Template
+Library" (STL)) extensively. For example, use the `std::vector<>`
+class to allocate arrays and not allocate memory directly
+yourself. Use plenty of `struct` or `class` and in parts of the code
+use objects oriented programming. Objects oriented programming is a
+powerful paradigm but is not always suitable for computational
+code. For example, the STL is **not object oriented**. Instead it uses
+the idea of "types" with operators that work on these abstract types
+that satisfy some property. The theory of types has a long and
+distinguished history in mathematics and logic, going back to Bertrand
+Russell. Many programming languages have a very sophisticated concept
+of types, though the C++ type-system leaves much to be desired.
+
+
+The Message Passing Interface (MPI) is the de-facto standard in
+high-performance computing (HPC) for message based communication
+between processors. The MPI standard specifies an API that
+applications can use to communicate in parallel. See the
+`documentation here <https://www.open-mpi.org/doc/current/>`_. The MPI
+standard is complex. However, for most explicit codes you only need to
+understand a few key methods and can learn others as and when needed.
+
+I went over the basic design pattern of an explicit, parallel PDE
+solver. (In the CS literature "Design Patterns" mean something very
+specific: these encode a fundamental algorithmic pattern that occurs
+again and again in large number of applications. CS folks have
+designed and discovered many patterns and good programmers should be
+aware of some of these). I showed that to communicate between
+sub-domains one needs to copy "skin-cell" data from one sub-domain to
+the "ghost-cell" region of another sub-domain. The size and layout the
+skin/ghost-cell regions depends on the stencil you are using (for
+example, if you are using a 5-point of 9-point Laplacian stencil). For
+unstructured grids the layout of skin/ghost-cell regions is very
+complex and needs significant book-keeping.
 
