@@ -164,9 +164,11 @@ powerful paradigm but is not always suitable for computational
 code. For example, the STL is **not object oriented**. Instead it uses
 the idea of "types" with operators that work on these abstract types
 that satisfy some property. The theory of types has a long and
-distinguished history in mathematics and logic, going back to Bertrand
-Russell. Many programming languages have a very sophisticated concept
-of types, though the C++ type-system leaves much to be desired.
+distinguished history in mathematics and logic, going back to
+`Bertrand Russell
+<https://www.jstor.org/stable/pdf/2369948.pdf>`_. Many programming
+languages have a very sophisticated concept of types, though the C++
+type-system leaves much to be desired.
 
 The Message Passing Interface (MPI) is the de-facto standard in
 high-performance computing (HPC) for message based communication
@@ -189,3 +191,11 @@ example, if you are using a 5-point of 9-point Laplacian stencil). For
 unstructured grids the layout of skin/ghost-cell regions is very
 complex and needs significant book-keeping.
 
+As a complete illustration of the steps needed in writing an explicit,
+parallel PDE solver, I wrote and showed an advection equation
+solver. See the source code in the `github directory
+<https://github.com/ammarhakim/apc523-2020/tree/master/code/advection>`_. This
+implements a forward Euler in time and a central difference in space
+scheme. Note that this scheme is *unstable* and implementing a stable
+scheme (using upwinding) is left as an exercise. To understand the
+structure of the code see the slides from Lecture 14.
