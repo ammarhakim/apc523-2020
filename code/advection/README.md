@@ -13,7 +13,8 @@ ID name:
 ssh -X tigerid@adroit.princeton.edu
 ```
 
-Obviously, replace ```tigerid``` by your own Tiger ID. Adroit (and all
+Obviously, replace ```tigerid``` by your own Tiger ID. (Some people found
+problems were fixed if they used "ssh -Y" instead of "ssh -X".)  Adroit (and all
 PU clusters) use a module system to load software packages. For more
 information on using Adroit, see the [Adroit
 tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
@@ -91,3 +92,39 @@ machines have X Windows by default. If you have a hard time getting an
 X Windows server, a workaround is to ship the output files to your own
 computer and run the python plotting script on it.
 
+
+### MyAdroit alternative for plotting:
+
+An alternative to plotting using X Windows from Adroit to your
+computer is to use "MyAdroit":
+
+In a browser, go to myadroit.princeton.edu and login.  You can click
+on the "Desktop" interactive app, and leave all of the options at the
+default, using just 1 core.  This gives you a virtual desktop running
+on Adroit.  (Steve Jobs got the idea for the Mac desktop from seeing
+a GUI-based desktop on a Unix computer at Xerox.)  (In addition to
+plotting, you can use one of the simple file editors on the virtual
+desktop if you aren't familiar with command-line based editors like
+emacs or Vim.)
+
+Click on the Terminal icon on the top bar.  In the terminal type
+
+```
+module add anaconda
+```
+
+(It's not clear to me (gwh) how they have configured things for myadroit.
+"module load intel" doesn't work.  It seems you still need to have a
+separate terminal connection from your computer to an adroit login
+node to be able to compile the code on a login node and then run
+it in parallel in a slurm interactive session.  But plotting is much
+faster on myadroit.)
+
+Move to the subdirectory where the code is, and plot:
+
+```
+cd apc523-2020/code/advection
+python plot-sol.py -n 2
+```
+
+When you are finished, on the top bar click System -> Log Out.
