@@ -135,13 +135,13 @@ mentioning briefly OpenMP and GPUs. The latter are major topic in
 themselves and can't be covered in a single lecture like this.
 
 My general recommendation for new projects is to use modern C++
-(i.e. use C++ language as standardized in 2011). Modern C++ is a very
-powerful language that has the right combination of high-level
-features and low-level control that can result in very flexible but
-optimized code. (Often, keeping a code flexible and ensuring it is
-efficient is difficult). Most newer large libraries being built are
-being written in C++ and it is a good to get familiar with the
-language.
+(i.e. use C++ language as standardized in 2011 and after). Modern C++
+is a very powerful language that has the right combination of
+high-level features and low-level control that can result in very
+flexible but optimized code. (Often, keeping a code flexible and
+ensuring it is efficient is difficult). Most newer large libraries
+being built are being written in C++ and it is a good to get familiar
+with the language.
 
 However, C++ is a difficult language to learn and very hard to use
 effectively. It is best to study good C++ code and apprentice to a
