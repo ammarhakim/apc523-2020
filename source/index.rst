@@ -38,8 +38,8 @@ and the code I ran in class by cloning the `Github repo
 <https://github.com/ammarhakim/apc523-2020>`_ for these lectures.
 
 
-Lecture 13: Hardware and Software Issues in Computational Physics
------------------------------------------------------------------
+Lecture 13: Hardware and Software Issues: History and Optimization
+------------------------------------------------------------------
 
 `PDF of Lecture 13 slides <./_static/lec13.pdf>`_
 
@@ -124,8 +124,8 @@ library <https://github.com/agenium-scale/nsimd>`_ are good libraries
 to use. (Intel has it's own library but it does not seem to be widely
 used or even maintained. I may be wrong, though).
 
-Lecture 14: Hardware and Software Issues in Computational Physics
------------------------------------------------------------------
+Lecture 14: Hardware and Software Issues: C++ and Parallel Programming
+----------------------------------------------------------------------
 
 `PDF of Lecture 14 slides <./_static/lec14.pdf>`_
 
@@ -139,17 +139,21 @@ My general recommendation for new projects is to use modern C++
 powerful language that has the right combination of high-level
 features and low-level control that can result in very flexible but
 optimized code. (Often, keeping a code flexible and ensuring it is
-efficient is difficult to do). Most newer large libraries being built
-are being written in C++ and it is a good to get familiar with the
+efficient is difficult). Most newer large libraries being built are
+being written in C++ and it is a good to get familiar with the
 language.
 
 However, C++ is a difficult language to learn and very hard to use
 effectively. It is best to study good C++ code and apprentice to a
-"Master Craftsman" to become a real expert. I recommend `Bjarne
-Stroustrup's "The C++ Programming Language"
-<https://www.amazon.com/Programming-Language-Programm-Lang_p4-ebook/dp/B00DUW4BMS/ref=sr_1_1?crid=1A6CJEHES1P9W&keywords=the+c%2B%2B+programming+language&qid=1585578251&sprefix=the+c%2B%2B%2Caps%2C142&sr=8-1>`_
-as the standard reference. Stroustrup is the inventor of C++ and also
-wrote the first compiler for it.
+"Master Craftsman" to become a real expert. I recommend Bjarne
+Stroustrup's "The C++ Programming Language" as the standard
+reference. Stroustrup is the inventor of C++ and also wrote the first
+compiler for it.
+
+The most comprehensive and complete reference documentation for C++ is
+the `cppreference website <https://en.cppreference.com/w/>`_. If you
+write any serious program in C++ this is indispensable. This is not
+for beginning C++ programmers.
 
 When using C++ use the Standard Library (called the "Standard Template
 Library" (STL)) extensively. For example, use the `std::vector<>`
@@ -163,7 +167,6 @@ that satisfy some property. The theory of types has a long and
 distinguished history in mathematics and logic, going back to Bertrand
 Russell. Many programming languages have a very sophisticated concept
 of types, though the C++ type-system leaves much to be desired.
-
 
 The Message Passing Interface (MPI) is the de-facto standard in
 high-performance computing (HPC) for message based communication
