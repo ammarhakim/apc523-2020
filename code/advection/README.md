@@ -13,7 +13,8 @@ ID name:
 ssh -X tigerid@adroit.princeton.edu
 ```
 
-Obviously, replace ```tigerid``` by your own Tiger ID. Adroit (and all
+Obviously, replace ```tigerid``` by your own Tiger ID. (Some people found
+problems were fixed if they used "ssh -Y" instead of "ssh -X".)  Adroit (and all
 PU clusters) use a module system to load software packages. For more
 information on using Adroit, see the [Adroit
 tutorials](https://researchcomputing.princeton.edu/computational-hardware/adroit/tutorials).
@@ -112,10 +113,10 @@ Click on the Terminal icon on the top bar.  In the terminal type
 module add anaconda
 ```
 
-(It's not clear to me how they have configured things for myadroit.
+(It's not clear to me (gwh) how they have configured things for myadroit.
 "module load intel" doesn't work.  It seems you still need to have a
 separate terminal connection from your computer to an adroit login
-node to be able to compile the code on a long in node and then run
+node to be able to compile the code on a login node and then run
 it in parallel in a slurm interactive session.  But plotting is much
 faster on myadroit.)
 
