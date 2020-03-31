@@ -224,6 +224,9 @@ runSim(const NameValuePair& nvPair, const SimData& simData) {
   // allocate memory to store solution: cell 0 and 'grid.cells' are ghost cells
   std::vector<double> f(grid.cells+2); // +2 for ghost-cells
   std::vector<double> fNew(f.size()); // solution at next time-step
+  // f[0] left ghost-cell
+  // f[1...cells] interior cells
+  // f[cells+1] right ghost-cell
   
   // apply initial conditions
   applyInitCondition(nvPair, grid, f);

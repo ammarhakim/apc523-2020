@@ -8,6 +8,7 @@ parser.add_argument('-n', dest='numRanks', action='store', required=True,
 args = parser.parse_args()
 numRanks = args.numRanks
 
+
 pl.figure(1)
 for i in range(numRanks):
     f0 = pl.loadtxt("advection-0_r%d.txt" % i)
